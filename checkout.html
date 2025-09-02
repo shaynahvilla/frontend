@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Shopping Cart - Shainna's Cosmetics</title>
+    <title>Checkout - Shainna's Cosmetics</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -45,45 +45,45 @@
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
             margin-top: 70px; /* Ensure container is below notification and header */
         }
-        h2 {
+        h2, h3 {
             color: #333;
             margin-top: 0;
         }
-        #cart-items {
+        #order-summary {
             list-style: none;
             padding: 0;
-            margin: 0;
-        }
-        #cart-items li {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px 0;
+            margin: 0 0 20px;
             border-bottom: 1px solid #eee;
         }
-        #cart-items li:last-child {
-            border-bottom: none;
+        #order-summary li {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
         }
         #total {
             font-weight: bold;
             font-size: 18px;
             color: #ff69b4;
-            margin-top: 20px;
             text-align: right;
+            margin-top: 10px;
         }
-        .remove-btn {
-            background-color: #ff4d4d;
-            color: white;
-            border: none;
-            padding: 5px 10px;
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+        }
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
             border-radius: 5px;
-            cursor: pointer;
-            font-size: 14px;
+            font-size: 16px;
         }
-        .remove-btn:hover {
-            background-color: #cc0000;
-        }
-        .checkout-btn {
+        .submit-btn {
             background-color: #5e28aa;
             color: white;
             border: none;
@@ -94,7 +94,7 @@
             display: block;
             margin: 20px auto;
         }
-        .checkout-btn:hover {
+        .submit-btn:hover {
             background-color: #ff1493;
         }
         .back-btn {
@@ -120,15 +120,49 @@
 
     <header>
         <h1>Shainna's Cosmetics</h1>
-        <p>Your Shopping Cart</p>
+        <p>Complete Your Purchase</p>
     </header>
 
     <div class="container">
-        <h2>Shopping Cart</h2>
-        <ul id="cart-items"></ul>
+        <h2>Checkout</h2>
+        <h3>Order Summary</h3>
+        <ul id="order-summary"></ul>
         <div id="total">Total: $0.00</div>
-        <a href="checkout.html" class="checkout-btn">Proceed to Checkout</a>
-        <a href="index.html" class="back-btn">Continue Shopping</a>
+
+        <h3>Shipping Information</h3>
+        <div class="form-group">
+            <label for="name">Full Name</label>
+            <input type="text" id="name" placeholder="Enter your name" required>
+        </div>
+        <div class="form-group">
+            <label for="address">Address</label>
+            <input type="text" id="address" placeholder="Enter your address" required>
+        </div>
+        <div class="form-group">
+            <label for="city">City</label>
+            <input type="text" id="city" placeholder="Enter your city" required>
+        </div>
+        <div class="form-group">
+            <label for="zip">ZIP Code</label>
+            <input type="text" id="zip" placeholder="Enter your ZIP code" required>
+        </div>
+
+        <h3>Payment Information</h3>
+        <div class="form-group">
+            <label for="card-number">Card Number</label>
+            <input type="text" id="card-number" placeholder="1234 5678 9012 3456" required>
+        </div>
+        <div class="form-group">
+            <label for="expiry">Expiry Date</label>
+            <input type="text" id="expiry" placeholder="MM/YY" required>
+        </div>
+        <div class="form-group">
+            <label for="cvv">CVV</label>
+            <input type="text" id="cvv" placeholder="123" required>
+        </div>
+
+        <button class="submit-btn">Place Order</button>
+        <a href="cart.html" class="back-btn">Back to Cart</a>
     </div>
 
     <script>
@@ -148,40 +182,47 @@
             }, 3000); // Hide after 3 seconds
         }
 
-        // Function to update cart display
-        function updateCart() {
-            const cartList = document.getElementById('cart-items');
-            cartList.innerHTML = '';
-            cartItems.forEach((item, index) => {
+        // Function to update order summary
+        function updateOrderSummary() {
+            const orderList = document.getElementById('order-summary');
+            orderList.innerHTML = '';
+            cartItems.forEach(item => {
                 const li = document.createElement('li');
-                li.innerHTML = `
-                    <span>${item.name} - $${item.price.toFixed(2)}</span>
-                    <button class="remove-btn" data-index="${index}">Remove</button>
-                `;
-                cartList.appendChild(li);
+                li.textContent = `${item.name} - $${item.price.toFixed(2)}`;
+                orderList.appendChild(li);
             });
             document.getElementById('total').textContent = `Total: $${total.toFixed(2)}`;
-
-            // Add event listeners for remove buttons
-            document.querySelectorAll('.remove-btn').forEach(button => {
-                button.addEventListener('click', () => {
-                    const index = parseInt(button.getAttribute('data-index'));
-                    total -= cartItems[index].price;
-                    cartItems.splice(index, 1);
-                    localStorage.setItem('cartItems', JSON.stringify(cartItems));
-                    localStorage.setItem('cartTotal', total.toFixed(2));
-                    updateCart();
-                });
-            });
         }
 
-        // Initial cart update
-        updateCart();
+        // Initial order summary update
+        updateOrderSummary();
 
         // Show notification if a product was recently added
         if (lastAddedProduct) {
             showNotificationBar(lastAddedProduct);
         }
+
+        // Placeholder for form submission
+        document.querySelector('.submit-btn').addEventListener('click', () => {
+            const name = document.getElementById('name').value;
+            const address = document.getElementById('address').value;
+            const city = document.getElementById('city').value;
+            const zip = document.getElementById('zip').value;
+            const cardNumber = document.getElementById('card-number').value;
+            const expiry = document.getElementById('expiry').value;
+            const cvv = document.getElementById('cvv').value;
+
+            if (name && address && city && zip && cardNumber && expiry && cvv) {
+                alert('Order placed successfully! (This is a frontend-only demo.)');
+                // Clear cart after "successful" order
+                localStorage.removeItem('cartItems');
+                localStorage.removeItem('cartTotal');
+                localStorage.removeItem('lastAddedProduct');
+                window.location.href = 'index.html';
+            } else {
+                alert('Please fill out all fields.');
+            }
+        });
     </script>
 </body>
 </html>
