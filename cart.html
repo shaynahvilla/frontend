@@ -1,0 +1,185 @@
+<meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shopping Cart - Cosmetics Haven</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        .notification-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background-color: #800080; /* Purple background like in screenshot */
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+            z-index: 1001;
+            display: none;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            /* Handwritten-style font effect (approximation) */
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            text-transform: uppercase;
+        }
+        header {
+            background-color: #ff69b4;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            margin-top: 50px; /* Adjust for notification bar height */
+        }
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            margin-top: 70px; /* Ensure container is below notification and header */
+        }
+        h2 {
+            color: #333;
+            margin-top: 0;
+        }
+        #cart-items {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        #cart-items li {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+        #cart-items li:last-child {
+            border-bottom: none;
+        }
+        #total {
+            font-weight: bold;
+            font-size: 18px;
+            color: #ff69b4;
+            margin-top: 20px;
+            text-align: right;
+        }
+        .remove-btn {
+            background-color: #ff4d4d;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .remove-btn:hover {
+            background-color: #cc0000;
+        }
+        .checkout-btn {
+            background-color: #ff69b4;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            display: block;
+            margin: 20px auto;
+        }
+        .checkout-btn:hover {
+            background-color: #ff1493;
+        }
+        .back-btn {
+            background-color: #666;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            text-align: center;
+            display: inline-block;
+            margin: 10px;
+            text-decoration: none;
+        }
+        .back-btn:hover {
+            background-color: #555;
+        }
+    </style>
+</head>
+<body>
+    <div class="notification-bar" id="notification-bar"></div>
+
+    <header>
+        <h1>Cosmetics Haven</h1>
+        <p>Your Shopping Cart</p>
+    </header>
+
+    <div class="container">
+        <h2>Shopping Cart</h2>
+        <ul id="cart-items"></ul>
+        <div id="total">Total: $0.00</div>
+        <a href="checkout.html" class="checkout-btn">Proceed to Checkout</a>
+        <a href="index.html" class="back-btn">Continue Shopping</a>
+    </div>
+
+    <script>
+        // Retrieve cart items and last added product from localStorage
+        const cartItems = JSON.parse(localStorage.getItem('cartItems')) || [];
+        let total = parseFloat(localStorage.getItem('cartTotal')) || 0;
+        const lastAddedProduct = localStorage.getItem('lastAddedProduct') || '';
+
+        // Function to show notification bar
+        function showNotificationBar(productName) {
+            const notificationBar = document.getElementById('notification-bar');
+            notificationBar.textContent = `ADDED TO CART: ${productName}`;
+            notificationBar.style.display = 'block';
+            setTimeout(() => {
+                notificationBar.style.display = 'none';
+                localStorage.removeItem('lastAddedProduct'); // Clear after showing
+            }, 3000); // Hide after 3 seconds
+        }
+
+        // Function to update cart display
+        function updateCart() {
+            const cartList = document.getElementById('cart-items');
+            cartList.innerHTML = '';
+            cartItems.forEach((item, index) => {
+                const li = document.createElement('li');
+                li.innerHTML = `
+                    <span>${item.name} - $${item.price.toFixed(2)}</span>
+                    <button class="remove-btn" data-index="${index}">Remove</button>
+                `;
+                cartList.appendChild(li);
+            });
+            document.getElementById('total').textContent = `Total: $${total.toFixed(2)}`;
+
+            // Add event listeners for remove buttons
+            document.querySelectorAll('.remove-btn').forEach(button => {
+                button.addEventListener('click', () => {
+                    const index = parseInt(button.getAttribute('data-index'));
+                    total -= cartItems[index].price;
+                    cartItems.splice(index, 1);
+                    localStorage.setItem('cartItems', JSON.stringify(cartItems));
+                    localStorage.setItem('cartTotal', total.toFixed(2));
+                    updateCart();
+                });
+            });
+        }
+
+        // Initial cart update
+        updateCart();
+
+        // Show notification if a product was recently added
+        if (lastAddedProduct) {
+            showNotificationBar(lastAddedProduct);
+        }
+    </script>
+</body>
+</html>
