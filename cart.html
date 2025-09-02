@@ -6,35 +6,63 @@
     <title>Shopping Cart - Shainna's Cosmetics</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Arial', sans-serif;
             margin: 0;
             padding: 0;
-            background-color: #f4f4f4;
+            background-color: #f8f9fa;
         }
+
+        /* Professional Notification Bar */
         .notification-bar {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            background-color: #800080; /* Purple background */
+            top: -70px; /* Hidden initially */
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90%;
+            max-width: 450px;
+            background-color: #28a745; /* Success green */
             color: white;
-            padding: 10px 20px;
-            text-align: center;
-            font-size: 18px;
-            font-weight: bold;
+            padding: 14px 18px;
+            font-size: 16px;
+            font-weight: 500;
             z-index: 1001;
-            display: none;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-            font-family: 'Comic Sans MS', cursive, sans-serif;
-            text-transform: uppercase;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: 6px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            transition: top 0.5s ease, opacity 0.5s ease;
+            opacity: 0;
         }
+        .notification-bar.show {
+            top: 20px; 
+            opacity: 1;
+        }
+        .notification-bar span {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .notification-icon {
+            font-size: 18px;
+        }
+        .notification-close {
+            background: transparent;
+            border: none;
+            color: white;
+            font-size: 20px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
         header {
             background-color: #361e2a;
             color: white;
             padding: 20px;
             text-align: center;
-            margin-top: 50px; /* Adjust for notification bar height */
+            margin-top: 50px;
         }
+
         .container {
             max-width: 800px;
             margin: 20px auto;
@@ -42,13 +70,15 @@
             background-color: white;
             border: 1px solid #ddd;
             border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            margin-top: 70px; /* Ensure container is below notification and header */
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            margin-top: 70px;
         }
+
         h2 {
             color: #333;
             margin-top: 0;
         }
+
         #cart-items {
             list-style: none;
             padding: 0;
@@ -64,41 +94,46 @@
         #cart-items li:last-child {
             border-bottom: none;
         }
+
         #total {
             font-weight: bold;
             font-size: 18px;
-            color: #ff69b4;
+            color: #28a745;
             margin-top: 20px;
             text-align: right;
         }
+
         .remove-btn {
-            background-color: #ff4d4d;
+            background-color: #dc3545;
             color: white;
             border: none;
-            padding: 5px 10px;
-            border-radius: 5px;
+            padding: 6px 12px;
+            border-radius: 4px;
             cursor: pointer;
             font-size: 14px;
         }
         .remove-btn:hover {
-            background-color: #cc0000;
+            background-color: #b52a37;
         }
+
         .checkout-btn {
             background-color: #5e28aa;
             color: white;
             border: none;
-            padding: 10px 20px;
+            padding: 12px 24px;
             border-radius: 5px;
             cursor: pointer;
             font-size: 16px;
             display: block;
             margin: 20px auto;
+            transition: background 0.3s ease;
         }
         .checkout-btn:hover {
-            background-color: #ff1493;
+            background-color: #4b1f87;
         }
+
         .back-btn {
-            background-color: #666;
+            background-color: #6c757d;
             color: white;
             border: none;
             padding: 10px 20px;
@@ -109,13 +144,15 @@
             display: inline-block;
             margin: 10px;
             text-decoration: none;
+            transition: background 0.3s ease;
         }
         .back-btn:hover {
-            background-color: #555;
+            background-color: #545b62;
         }
     </style>
 </head>
 <body>
+    <!-- Notification Bar -->
     <div class="notification-bar" id="notification-bar"></div>
 
     <header>
@@ -140,12 +177,24 @@
         // Function to show notification bar
         function showNotificationBar(productName) {
             const notificationBar = document.getElementById('notification-bar');
-            notificationBar.textContent = `ADDED TO CART: ${productName}`;
-            notificationBar.style.display = 'block';
-            setTimeout(() => {
-                notificationBar.style.display = 'none';
-                localStorage.removeItem('lastAddedProduct'); // Clear after showing
-            }, 3000); // Hide after 3 seconds
+            notificationBar.innerHTML = `
+                <span><span class="notification-icon">✔</span> Added to Cart: ${productName}</span>
+                <button class="notification-close">&times;</button>
+            `;
+            notificationBar.classList.add('show');
+
+            // Auto-hide after 3 seconds
+            const hideTimeout = setTimeout(() => {
+                notificationBar.classList.remove('show');
+                localStorage.removeItem('lastAddedProduct');
+            }, 3000);
+
+            // Allow manual close
+            notificationBar.querySelector('.notification-close').addEventListener('click', () => {
+                clearTimeout(hideTimeout);
+                notificationBar.classList.remove('show');
+                localStorage.removeItem('lastAddedProduct');
+            });
         }
 
         // Function to update cart display
